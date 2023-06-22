@@ -1,0 +1,2 @@
+# namesilo-ddns
+Namesilo ddns
