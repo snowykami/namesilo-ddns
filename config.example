@@ -1,0 +1,14 @@
+{
+    "key": "xxxxxxxxxxxx",
+    "host_ipv4": "host4",
+    "host_ipv6": "host6",
+    "duration": 600,
+    "domain": "example.com",
+
+    "sender": "mail@example.com",
+    "mail_host": "smtp.example.com",
+    "mail_port": "114",
+    "mail_user": "receiver@example.com",
+    "mail_auth": "1i1n4m5dfdfd14",
+    "receivers": ["receiver@example.com"]
+}
