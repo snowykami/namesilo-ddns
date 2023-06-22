@@ -8,6 +8,8 @@
 
 需要一个namesilo的域名
 
+`python3.9+` `DDNS` `NameSilo`
+
 ## 开始使用
 
 </center>
