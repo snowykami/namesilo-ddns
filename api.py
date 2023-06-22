@@ -144,40 +144,43 @@ def send_email(title: str, content: str):
 
     发送邮箱验证码,请在此前校验邮箱格式
     """
-    if len(config["receivers"]) >= 1:
-        mail_host = config["mail_host"]
-        mail_user = config["mail_user"]
-        mail_auth = config["mail_auth"]
-        mail_port = config["mail_port"]
+    try:
+        if len(config["receivers"]) >= 1:
+            mail_host = config["mail_host"]
+            mail_user = config["mail_user"]
+            mail_auth = config["mail_auth"]
+            mail_port = config["mail_port"]
 
-        sender = config["sender"]
+            sender = config["sender"]
 
-        receivers = config["receivers"]
+            receivers = config["receivers"]
 
-        try:
-            email = open("email/notification.html", "r", encoding="utf-8").read()
-            email = email.replace("#time#", logger.get_time())
-            email = email.replace("#title#", title)
-            email = email.replace("#content#", content)
-            email = email.replace("#device#", socket.gethostname())
-        except:
-            pass
+            try:
+                email = open("email/notification.html", "r", encoding="utf-8").read()
+                email = email.replace("#time#", logger.get_time())
+                email = email.replace("#title#", title)
+                email = email.replace("#content#", content)
+                email = email.replace("#device#", socket.gethostname())
+            except:
+                pass
 
-        message = MIMEText(email, "html", "utf-8")
-        message["Subject"] = title
-        message["From"] = sender
-        message["To"] = ",".join(receivers)
-        try:
-            smtpObj = smtplib.SMTP(mail_host, mail_port)
-            smtpObj.connect(mail_host, mail_port)
-            smtpObj.ehlo()
-            smtpObj.starttls()
-            smtpObj.login(mail_user, mail_auth)
-            smtpObj.sendmail(sender, receivers, msg=message.as_string())
-            return True
-        except smtplib.SMTPException as e:
-            traceback.print_exc()
-            return False
+            message = MIMEText(email, "html", "utf-8")
+            message["Subject"] = title
+            message["From"] = sender
+            message["To"] = ",".join(receivers)
+            try:
+                smtpObj = smtplib.SMTP(mail_host, mail_port)
+                smtpObj.connect(mail_host, mail_port)
+                smtpObj.ehlo()
+                smtpObj.starttls()
+                smtpObj.login(mail_user, mail_auth)
+                smtpObj.sendmail(sender, receivers, msg=message.as_string())
+                return True
+            except smtplib.SMTPException as e:
+                traceback.print_exc()
+                return False
+    except:
+        pass
 
 
 def get_current_ipv4() -> str:
