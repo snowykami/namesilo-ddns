@@ -146,14 +146,17 @@ def send_email(title: str, content: str):
     """
     try:
         if len(config["receivers"]) >= 1:
-            mail_host = config["mail_host"]
-            mail_user = config["mail_user"]
-            mail_auth = config["mail_auth"]
-            mail_port = config["mail_port"]
+            mail_host = config.get("mail_host")
+            mail_user = config.get("mail_user")
+            mail_auth = config.get("mail_auth")
+            mail_port = config.get("mail_port")
 
-            sender = config["sender"]
+            sender = config.get("sender")
 
-            receivers = config["receivers"]
+            receivers = config.get("receivers")
+
+            if mail_host is None:
+                raise BaseException
 
             try:
                 email = open("email/notification.html", "r", encoding="utf-8").read()
