@@ -145,6 +145,8 @@ def send_email(title: str, content: str):
     发送邮箱验证码,请在此前校验邮箱格式
     """
     try:
+        if not config.get("enable_email", False):
+            raise BaseException
         if len(config["receivers"]) >= 1:
             mail_host = config.get("mail_host")
             mail_user = config.get("mail_user")
