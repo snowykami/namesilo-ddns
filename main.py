@@ -22,7 +22,6 @@ def update():
 
     # Detect cloud records
     for dns_record in dns_records:
-        print(dns_record)
         if dns_record.type == 'A' and dns_record.host == host_ipv4 + ("" if host_ipv4 == "" else ".") + domain:
             last_ipv4 = dns_record.value
             rrid_ipv4 = dns_record.record_id
