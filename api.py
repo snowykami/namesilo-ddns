@@ -64,6 +64,7 @@ class Account:
         if r:
             send_email("域名解析添加成功", f"{rrhost}.{domain} -> {rrvalue}")
         else:
+            print(xmltodict.parse(resp.text))
             send_email("域名解析添加失败", f"{json.dumps(xmltodict.parse(resp.text))}")
         return r
 
@@ -96,6 +97,7 @@ class Account:
         if r:
             send_email("域名解析更新成功", f"{rrhost}.{domain} -> {rrvalue}")
         else:
+            print(xmltodict.parse(resp.text))
             send_email("域名解析更新失败", f"{json.dumps(xmltodict.parse(resp.text))}")
         return r
 

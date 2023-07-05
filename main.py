@@ -34,20 +34,32 @@ def update():
     current_ipv6 = get_current_ipv6()
     if last_ipv4 != current_ipv4:
         if rrid_ipv4 is not None:
-            account.update_dns_record(domain, rrid_ipv4, host_ipv4, current_ipv4)
-            logger.info(f"Update record: {host_ipv4}.{domain} -> {current_ipv4}")
+            r = account.update_dns_record(domain, rrid_ipv4, host_ipv4, current_ipv4)
+            if r:
+                logger.info(f"Update record: {host_ipv4}.{domain} -> {current_ipv4}")
+            else:
+                logger.error(f"Failed to update record: {host_ipv4}.{domain} -> {current_ipv4}")
         else:
-            account.add_dns_record(domain, "A", host_ipv4, current_ipv4)
-            logger.info(f"Add record: {host_ipv4}.{domain} -> {current_ipv4}")
+            r = account.add_dns_record(domain, "A", host_ipv4, current_ipv4)
+            if r:
+                logger.info(f"Add record: {host_ipv4}.{domain} -> {current_ipv4}")
+            else:
+                logger.info(f"Failed to add record: {host_ipv4}.{domain} -> {current_ipv4}")
     else:
         logger.info(f"IPv4 no change: {current_ipv4}")
     if last_ipv6 != current_ipv6:
         if rrid_ipv6 is not None:
-            account.update_dns_record(domain, rrid_ipv6, host_ipv6, current_ipv6)
-            logger.info(f"Update record: {host_ipv6}.{domain} -> {current_ipv6}")
+            r = account.update_dns_record(domain, rrid_ipv6, host_ipv6, current_ipv6)
+            if r:
+                logger.info(f"Update record: {host_ipv6}.{domain} -> {current_ipv6}")
+            else:
+                logger.info(f"Failed to update record: {host_ipv6}.{domain} -> {current_ipv6}")
         else:
-            account.add_dns_record(domain, "AAAA", host_ipv6, current_ipv6)
-            logger.info(f"Add record: {host_ipv6}.{domain} -> {current_ipv6}")
+            r = account.add_dns_record(domain, "AAAA", host_ipv6, current_ipv6)
+            if r:
+                logger.info(f"Add record: {host_ipv6}.{domain} -> {current_ipv6}")
+            else:
+                logger.info(f"Failed to add record: {host_ipv6}.{domain} -> {current_ipv6}")
     else:
         logger.info(f"IPv6 no change: {current_ipv6}")
 
