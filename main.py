@@ -22,10 +22,11 @@ def update():
 
     # Detect cloud records
     for dns_record in dns_records:
-        if dns_record.type == 'A' and dns_record.host == host_ipv4:
+        print(dns_record)
+        if dns_record.type == 'A' and dns_record.host == host_ipv4 + ("" if host_ipv4 == "" else ".") + domain:
             last_ipv4 = dns_record.value
             rrid_ipv4 = dns_record.record_id
-        if dns_record.type == 'AAAA' and dns_record.host == host_ipv6:
+        if dns_record.type == 'AAAA' and dns_record.host == host_ipv6 + ("" if host_ipv6 == "" else ".") + domain:
             last_ipv6 = dns_record.value
             rrid_ipv6 = dns_record.record_id
 
@@ -44,7 +45,7 @@ def update():
             if r:
                 logger.info(f"Add record: {host_ipv4}.{domain} -> {current_ipv4}")
             else:
-                logger.info(f"Failed to add record: {host_ipv4}.{domain} -> {current_ipv4}")
+                logger.error(f"Failed to add record: {host_ipv4}.{domain} -> {current_ipv4}")
     else:
         logger.info(f"IPv4 no change: {current_ipv4}")
     if last_ipv6 != current_ipv6:
@@ -53,13 +54,13 @@ def update():
             if r:
                 logger.info(f"Update record: {host_ipv6}.{domain} -> {current_ipv6}")
             else:
-                logger.info(f"Failed to update record: {host_ipv6}.{domain} -> {current_ipv6}")
+                logger.error(f"Failed to update record: {host_ipv6}.{domain} -> {current_ipv6}")
         else:
             r = account.add_dns_record(domain, "AAAA", host_ipv6, current_ipv6)
             if r:
                 logger.info(f"Add record: {host_ipv6}.{domain} -> {current_ipv6}")
             else:
-                logger.info(f"Failed to add record: {host_ipv6}.{domain} -> {current_ipv6}")
+                logger.error(f"Failed to add record: {host_ipv6}.{domain} -> {current_ipv6}")
     else:
         logger.info(f"IPv6 no change: {current_ipv6}")
 
