@@ -129,11 +129,11 @@ class logger:
 
     @staticmethod
     def success(text):
-        print(f"{logger.get_time()} \033[92m[SUCCESS]\033[0m {text}")
+        print(f"{logger.get_time()} [SUCCESS] {text}")
 
     @staticmethod
     def error(text):
-        print(f"{logger.get_time()} \033[91m[ERROR]\033[0m {text}")
+        print(f"{logger.get_time()} [ERROR] {text}")
 
 
 def send_email(title: str, content: str):

@@ -7,71 +7,51 @@ import time
 key = config["key"]
 host_ipv4 = config["host_ipv4"]
 host_ipv6 = config["host_ipv6"]
-duration = config.get("config", 600)
+duration = config.get("duration", 1200)
 domain = config["domain"]
 
+logger.info("Starting service...")
 account = Account(key)
-last_ipv4 = "0.0.0.0"
-last_ipv6 = ":::::::"
 
 
 def update():
-    global last_ipv4, last_ipv6
 
-    records = account.list_dns_records(domain)
-    # detect local change
+    last_ipv4, last_ipv6 = "", ""
+    rrid_ipv4, rrid_ipv6 = None, None
+    dns_records = account.list_dns_records(domain)
+
+    # Detect cloud records
+    for dns_record in dns_records:
+        if dns_record.type == 'A' and dns_record.host == host_ipv4:
+            last_ipv4 = dns_record.value
+            rrid_ipv4 = dns_record.record_id
+        if dns_record.type == 'AAAA' and dns_record.host == host_ipv6:
+            last_ipv6 = dns_record.value
+            rrid_ipv6 = dns_record.record_id
+
+    # Detect local change
     current_ipv4 = get_current_ipv4()
-    if current_ipv4 != last_ipv4:
-        for record in records:
-            # update new record
-            if record.host == f"{host_ipv4}.{domain}" and record.type == "A":
-                r = account.update_dns_record(domain=domain, rrid=record.record_id, rrhost=host_ipv4,
-                                              rrvalue=current_ipv4)
-                if r:
-                    logger.success(f"Succeed to update: {host_ipv4}.{domain} -> {current_ipv4}")
-                else:
-                    logger.error(f"Failed to update: {host_ipv4}.{domain} -> {current_ipv4}")
-                break
-        else:
-            # No ipv4 record, add new
-            r = account.add_dns_record(domain=domain, rrtype="A", rrvalue=current_ipv4, rrhost=host_ipv4)
-            if r:
-                logger.success(f"Succeed to add: {host_ipv4}.{domain} -> {current_ipv4}")
-            else:
-                logger.error(f"Failed to add: {host_ipv4}.{domain} -> {current_ipv4}")
-        if r:
-            last_ipv4 = current_ipv4
-    else:
-        logger.info(f"IPv4 No change: {current_ipv4}")
-
     current_ipv6 = get_current_ipv6()
-    if current_ipv6 != last_ipv6:
-
-        for record in records:
-            if record.host == f"{host_ipv6}.{domain}" and record.type == "AAAA":
-                r = account.update_dns_record(domain=domain, rrid=record.record_id, rrhost=host_ipv6,
-                                              rrvalue=current_ipv6)
-                if r:
-                    logger.success(f"Succeed to update: {host_ipv6}.{domain} -> {current_ipv6}")
-                else:
-                    logger.error(f"Failed to update record: {host_ipv6}.{domain} -> {current_ipv6}")
-                break
+    if last_ipv4 != current_ipv4:
+        if rrid_ipv4 is not None:
+            account.update_dns_record(domain, rrid_ipv4, host_ipv4, current_ipv4)
+            logger.info(f"Update record: {host_ipv4}.{domain} -> {current_ipv4}")
         else:
-            # No ipv4 record, add new
-            r = account.add_dns_record(domain=domain, rrtype="AAAA", rrvalue=current_ipv6, rrhost=host_ipv6)
-            if r:
-                logger.success(f"Succeed to add: {host_ipv6}.{domain} -> {current_ipv6}")
-            else:
-                logger.error(f"Failed to add: {host_ipv6}.{domain} -> {current_ipv6}")
-        if r:
-            last_ipv6 = current_ipv6
+            account.add_dns_record(domain, "A", host_ipv4, current_ipv4)
+            logger.info(f"Add record: {host_ipv4}.{domain} -> {current_ipv4}")
     else:
-        logger.info(f"IPv6 No change: {current_ipv6}")
+        logger.info(f"IPv4 no change: {current_ipv4}")
+    if last_ipv6 != current_ipv6:
+        if rrid_ipv6 is not None:
+            account.update_dns_record(domain, rrid_ipv6, host_ipv6, current_ipv6)
+            logger.info(f"Update record: {host_ipv6}.{domain} -> {current_ipv6}")
+        else:
+            account.add_dns_record(domain, "AAAA", host_ipv6, current_ipv6)
+            logger.info(f"Add record: {host_ipv6}.{domain} -> {current_ipv6}")
+    else:
+        logger.info(f"IPv6 no change: {current_ipv6}")
 
 
-logger.info("Start")
-logger.info("Sending start email")
-send_email("域名解析更新服务已启动", "启动成功")
 while True:
     try:
         update()
